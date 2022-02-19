@@ -49,9 +49,16 @@ for items in sorted(sheet.merged_cell_ranges):
     sheet.unmerge_cells(str(items) )
 
 # get highest rows and columns
-rows=sheet.get_highest_row()
-columns=sheet.get_highest_column()
+rows=sheet.max_row
+columns=sheet.max_column
 print(rows,columns)
-
+print(sheet['AI6'].value)
+Datas={'Date':[]}
+for j in range(10,columns):
+    if sheet.cell(row=10,column=j).value !=None:
+       Datas["Date"].append(sheet.cell(row=6,column=j).value)
+print(Datas)
+#ws.Columns.EntireColumn.Hidden=False
+sheet.Columns.EntireColumn.Hidden=False
 wb.save('freezeExample.xlsx')
 
