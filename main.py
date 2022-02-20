@@ -19,7 +19,7 @@ print(project_root)
 # 'JAN--22',give your folder name
 Month_folder=os.path.join(project_root,"JAN-22")
 # to get the month and year of the date
-a,b,month=Month_folder.split('\\')
+# a,b,month=Month_folder.split('\\')
 X=[]
 for subdir,dir,file in os.walk(Month_folder):
     for i in dir:
@@ -37,7 +37,7 @@ for i in X:
  
 # start working on excel sheet
 # must put data only as a true to get the values not the formula
-wb=openpyxl.load_workbook(Excel_sheets[0],data_only=True)
+wb=openpyxl.load_workbook(Excel_sheets[1],data_only=True)
 # sheets=wb.get_sheet_names()
 # it will give the list of sheet names
 sheets=wb.sheetnames
@@ -56,6 +56,20 @@ rows=sheet.max_row
 columns=sheet.max_column
 print(rows,columns)
 print(sheet['AI6'].value)
+
+ # get the componet id and and month
+
+for i in range(1,columns):
+  if 'Component' in  str(sheet.cell(row=5,column=i).value) :
+      component=str(sheet.cell(row=5,column=i).value)
+# get the month name 
+for i in range(1,columns):
+    if 'Month' in str(sheet.cell(row=5,column=i).value) :
+        Month=str(sheet.cell(row=5,column=i).value)
+        a,month=Month.split(':')
+
+      
+
 Datas={}
 for j in range(4,columns):
     # column j+1 is added to remove the last None value 
@@ -64,7 +78,7 @@ for j in range(4,columns):
        Datas.setdefault("Date",[])
        Datas['Date'].append((sheet.cell(row=6,column=j).value))
        # get the component IDs
-       key,value=sheet['T5'].value.split('-')
+       key,value=component.split('-')
        Datas.setdefault(key,[])
        Datas[key].append(value)
 
