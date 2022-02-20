@@ -16,7 +16,10 @@ def get_project_root():
 
 project_root=get_project_root()
 print(project_root)
+# 'JAN--22',give your folder name
 Month_folder=os.path.join(project_root,"JAN-22")
+# to get the month and year of the date
+a,b,month=Month_folder.split('\\')
 X=[]
 for subdir,dir,file in os.walk(Month_folder):
     for i in dir:
@@ -53,12 +56,38 @@ rows=sheet.max_row
 columns=sheet.max_column
 print(rows,columns)
 print(sheet['AI6'].value)
-Datas={'Date':[]}
-for j in range(10,columns):
-    if sheet.cell(row=10,column=j).value !=None:
-       Datas["Date"].append(sheet.cell(row=6,column=j).value)
-print(Datas)
+Datas={}
+for j in range(4,columns):
+    # column j+1 is added to remove the last None value 
+    if sheet.cell(row=6,column=j+1).value !=None:
+       
+       Datas.setdefault("Date",[])
+       Datas['Date'].append((sheet.cell(row=6,column=j).value))
+       # get the component IDs
+       key,value=sheet['T5'].value.split('-')
+       Datas.setdefault(key,[])
+       Datas[key].append(value)
+
+
+# data frame with two features
+df1=pd.DataFrame(Datas)
+for i in range(7,rows):
+    for j in range(4,4+len(df1)):
+        if sheet.cell(row=i,column=2).value==None:
+            pass
+        else:
+         Datas.setdefault(sheet.cell(row=i,column=2).value,[])# to get the key value
+         if sheet.cell(row=i,column=j).value==None:
+              Datas[sheet.cell(row=i,column=2).value].append('')
+         else:
+          Datas[sheet.cell(row=i,column=2).value].append(sheet.cell(row=i,column=j).value)
 #ws.Columns.EntireColumn.Hidden=False
-sheet.Columns.EntireColumn.Hidden=False
-wb.save('freezeExample.xlsx')
+# sheet.Columns.EntireColumn.Hidden=False
+# wb.save('freezeExample.xlsx')
+df=pd.DataFrame(Datas)
+df['Date']=df['Date'].apply(lambda x: str(x) +'-'+month)
+file_path=os.path.join(r'C:\Automation\JAN-22','converted.xlsx')
+df.to_excel(file_path,index=False)
+
+
 
