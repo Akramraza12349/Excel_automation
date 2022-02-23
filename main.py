@@ -152,10 +152,13 @@ req_file['Date']=req_file['Date'].apply(lambda x: datetime.strptime(x,"%d-%b-%y"
 compoent_wt=[]
 cavity=[]
 component_master=pd.read_excel(r'C:\Automation\Sapphire Component Master.xlsx')
-req_file_1=pd.merge(req_file,component_master,on='Component ID',how='left')
-
+component_master['Component ID ']=component_master['Component ID '].apply(str)
+req_file_1=pd.merge(req_file,component_master,on='Component ID ')
+req_file_1.rename(columns={'Date':'Production Date','Component ID ':'Component Id'},inplace=True)
+sandman_fomat_excel=pd.read_excel(r'C:\Automation\Final Format_Rejection Data.xlsx',skiprows=5)
+final=pd.concat([req_file_1,sandman_fomat_excel],axis=0,ignore_index=True)
 # req_file=req_file[last_cols] 'Component ID '
-req_file_1.to_excel(file_path,index=False)
+final.to_excel(file_path,index=False)
 
 
 
