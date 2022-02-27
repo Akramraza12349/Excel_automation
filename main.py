@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 from tkinter import E
 import pandas as pd 
+import numpy as np
 from datetime import datetime
 
 
@@ -15,10 +16,12 @@ def get_project_root():
 project_root=get_project_root()
 print(project_root)
 # 'JAN--22',give your folder name
-Month_folder=os.path.join(project_root,"JAN-22")
+Month1="FEB-22"
+Days=list(np.arange(1,29))
+Month_folder=os.path.join(project_root,Month1)
 # to get the month and year of the date
 # a,b,Month1=Month_folder.split('\\')
-Month1="JAN-22"
+
 X=[]
 for subdir,dir,file in os.walk(Month_folder):
     for i in dir:
@@ -28,6 +31,7 @@ for subdir,dir,file in os.walk(Month_folder):
 
 Excel_sheets=[]
 for i in X:
+
   
  for a,b,c in os.walk(i):
     for n in c:
@@ -35,6 +39,7 @@ for i in X:
 # reading excel file 
 df_for_all=[]
 for i in range(len(Excel_sheets)):
+ print('Excel_sheet Number',+i+1)
 
  df=pd.read_excel(Excel_sheets[i],skiprows=4)
  checking_for_sum=df['Unnamed: 2'].values
@@ -57,12 +62,12 @@ for i in range(len(Excel_sheets)):
     df_new.loc[:,'Date'].ffill(inplace=True)
     df_new.drop_duplicates(subset = ['Date'], keep = 'first', inplace = True) 
     # print(df_new)
-    Datas={"Date":[]}  
+    Datas={"Date":Days}  
 # getting types of rejections 
     rej_col=df_new.columns
-    for i in rej_col:
-      if type(i)==int:
-       Datas['Date'].append(i)
+    for i in range(len(Datas['Date'])):
+      # if type(i)==int:
+      #  Datas['Date'].append(i)
        key,value=component.split('-')
        Datas.setdefault(key,[])
        Datas[key].append(value)
@@ -94,13 +99,13 @@ for i in range(len(Excel_sheets)):
   df_new=df_new[df_new['Unnamed: 2']=='sum']
   df_new.drop_duplicates(subset = ['Date'], keep = 'first', inplace = True) 
 # for second format 
-  Datas={"Date":[]}
+  Datas={"Date":Days}
   df_second_format=[]
 # getting types of rejections 
   rej_col=df_new.columns
-  for i in rej_col:
-    if type(i)==int:
-     Datas['Date'].append(i)
+  for i in range(len(Datas['Date'])):
+    # if type(i)==int:
+    #  Datas['Date'].append(i)
      key,value=component.split('-')
      Datas.setdefault(key,[])
      Datas[key].append(value)
@@ -135,7 +140,7 @@ df_of_all_excel.columns = [x[0] if type(x)==list else x for x in df_of_all_excel
 #df_of_all_excel.rename(columns={'Mould Broken':'Mould Broken (no)','W/Jkt Br.':'W/GR/Wrong Grind (no)','Wrong Grind':'W/GR/Wrong Grind (no)','M/ Scab.':'Mould Scab (no)','"Core Lift',"Cor"},inplace=True)
 #df_of_all_excel.columns =df_of_all_excel.columns.astype(str)
 # removing unwanted columns 
-df_of_all_excel.drop(['CHECK','% Rejection','Total Checked','Checked'],axis=1,inplace=True)
+# 111111 df_of_all_excel.drop(['CHECK','% Rejection','Total Checked','Checked'],axis=1,inplace=True)
 # summing the columns with same name 
 # df_of_all_excel.fillna(0).groupby(df_of_all_excel.columns, axis=1).sum()
 # df_of_all_excel.groupby(level=0, axis=1).sum()
@@ -149,15 +154,18 @@ req_file.insert(2,'Production',req_file.pop('Production'))
 req_file['Date']=req_file['Date'].apply(lambda x: datetime.strptime(x,"%d-%b-%y"))
 
 # adding component weight,and cavity
-compoent_wt=[]
-cavity=[]
+# compoent_wt=[]
+# cavity=[]
 component_master=pd.read_excel(r'C:\Automation\Sapphire Component Master.xlsx')
 component_master['Component ID ']=component_master['Component ID '].apply(str)
 req_file_1=pd.merge(req_file,component_master,on='Component ID ')
-req_file_1.rename(columns={'Date':'Production Date','Component ID ':'Component Id'},inplace=True)
+req_file_1.rename(columns={'Date':'Production Date','Component ID ':'Component Id','Weight of the Component (Kg)':'Nett Casting Wt (Kg)','Cavities (no)':'No. of Castings Per Box (No)'},inplace=True)
 sandman_fomat_excel=pd.read_excel(r'C:\Automation\Final Format_Rejection Data.xlsx',skiprows=5)
-final=pd.concat([req_file_1,sandman_fomat_excel],axis=0,ignore_index=True)
+final=pd.concat([sandman_fomat_excel,req_file_1],axis=0,ignore_index=True)
+final.drop(['CHECK','% Rejection','Total Checked','check'],axis=1,inplace=True)
 # req_file=req_file[last_cols] 'Component ID '
+
+print(len(Excel_sheets),len(final))
 final.to_excel(file_path,index=False)
 
 
