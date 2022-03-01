@@ -69,8 +69,11 @@ for i in range(len(Excel_sheets)):
       # if type(i)==int:
       #  Datas['Date'].append(i)
        key,value=component.split('-')
-       Datas.setdefault(key,[])
-       Datas[key].append(value)
+       if type(value)==str:
+        Datas.setdefault(key,[])
+        Datas[key].append(value)
+       else:
+         raise ValueError('Component name missing in ',i+1,"Excel sheet")
     for i in range(len(df_new)):
       for j in range(3,int(len(Datas['Date'])+3)):
        Datas.setdefault(df_new.iloc[i,1],[])
@@ -85,7 +88,7 @@ for i in range(len(Excel_sheets)):
         component=comp
     else:
         # component='Component ID-.'
-        pass
+      pass
 
 # get the Month
   for month in df.columns:
@@ -107,8 +110,11 @@ for i in range(len(Excel_sheets)):
     # if type(i)==int:
     #  Datas['Date'].append(i)
      key,value=component.split('-')
-     Datas.setdefault(key,[])
-     Datas[key].append(value)
+     if type(value)==str:
+      Datas.setdefault(key,[])
+      Datas[key].append(value)
+     else:
+          raise ValueError('Component name missing in ',i+1,"Excel sheet")
   for i in range(len(df_new)):
     for j in range(3,int(len(Datas['Date'])+3)):
      Datas.setdefault(df_new.iloc[i,1],[])
@@ -159,10 +165,13 @@ req_file['Date']=req_file['Date'].apply(lambda x: datetime.strptime(x,"%d-%b-%y"
 component_master=pd.read_excel(r'C:\Automation\Sapphire Component Master.xlsx')
 component_master['Component ID ']=component_master['Component ID '].apply(str)
 req_file_1=pd.merge(req_file,component_master,on='Component ID ')
-req_file_1.rename(columns={'Date':'Production Date','Component ID ':'Component Id','Weight of the Component (Kg)':'Nett Casting Wt (Kg)','Cavities (no)':'No. of Castings Per Box (No)'},inplace=True)
+req_file_1.rename(columns={'Date':'Production Date','Component ID ':'Component Id','Weight of the Component (Kg)':'Nett Casting Wt (Kg)','Cavities (no)':'No. of Castings Per Box (No)','Production':'Total Quantity Produced (no)','Rejection':'Total Sand Rejection Quantity (no)'},inplace=True)
 sandman_fomat_excel=pd.read_excel(r'C:\Automation\Final Format_Rejection Data.xlsx',skiprows=5)
 final=pd.concat([sandman_fomat_excel,req_file_1],axis=0,ignore_index=True)
 final.drop(['CHECK','% Rejection','Total Checked','check'],axis=1,inplace=True)
+final=final[final['Total Quantity Produced (no)']!=0]
+final['Component Id'] =final['Component Id'].replace({' 45 LH':'45(LH)', '45 rh': '45(RH)','46 LH':'46(LH)','46 RH':'46(RH)'})  
+#final.rename({' 45 LH':'45(LH)', '45 rh': '45(RH)','46 LH':'46(LH)','46 RH':'46(RH)'}, columns='Component Id')
 # req_file=req_file[last_cols] 'Component ID '
 
 print(len(Excel_sheets),len(final))
